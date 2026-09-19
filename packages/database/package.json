@@ -1,0 +1,34 @@
+{
+  "name": "@gitleague/database",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo 'lint database ok'",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@gitleague/config": "workspace:*",
+    "@gitleague/game-engine": "workspace:*",
+    "@gitleague/types": "workspace:*",
+    "dotenv": "^16.4.7",
+    "mongoose": "^8.9.0",
+    "pino": "^9.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

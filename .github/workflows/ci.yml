@@ -1,0 +1,83 @@
+name: GitLeague CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Lint, Typecheck & Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.3.4
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck Monorepo
+        run: pnpm typecheck
+
+      - name: Lint Monorepo
+        run: pnpm lint
+
+      - name: Run Test Suites
+        env:
+          NODE_ENV: test
+          PORT: 4000
+          HOST: 127.0.0.1
+          MONGODB_URI: mongodb://127.0.0.1:27017/gitleague_test
+          REDIS_HOST: 127.0.0.1
+          REDIS_PORT: 6379
+          ENCRYPTION_SECRET: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+          SESSION_SECRET: session-secret-test-environment-minimum-32-chars-long!
+          GITHUB_CLIENT_ID: test_github_client_id
+          GITHUB_CLIENT_SECRET: test_github_client_secret
+          FRONTEND_URL: http://127.0.0.1:3000
+          API_URL: http://127.0.0.1:4000
+        run: pnpm test
+
+      - name: Build Monorepo Bundles
+        run: pnpm build

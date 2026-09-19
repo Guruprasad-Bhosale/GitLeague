@@ -1,0 +1,8 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+  - 'tests/*'
+
+allowBuilds:
+  esbuild: true
+  msgpackr-extract: true

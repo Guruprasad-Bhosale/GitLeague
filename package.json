@@ -1,0 +1,21 @@
+{
+  "name": "git-league-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@12.3.4",
+  "scripts": {
+    "dev": "pnpm --parallel --filter \"./apps/*\" dev",
+    "build": "pnpm --filter \"./packages/*\" build && pnpm --filter \"./apps/*\" build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "test": "node ./node_modules/.pnpm/vitest@2.1.9_@types+node@22.20.2/node_modules/vitest/vitest.mjs run",
+    "seed:production": "pnpm --filter @gitleague/database build && node ./packages/database/dist/scripts/seed-production.js",
+    "clean": "pnpm -r exec rimraf dist node_modules"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
